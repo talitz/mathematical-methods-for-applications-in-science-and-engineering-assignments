@@ -1,0 +1,107 @@
+function LU(A::Union{Array{Complex128},Array{Float64}})
+    n = size(A,1); # Assuming A is nxn.
+    U = copy(A);
+    L = eye(eltype(A),n);
+    for k=2:n
+        for i=k:n
+            L[i,k-1] = U[i,k-1]/U[k-1,k-1];
+            for j=k-1:n
+                U[i,j] = U[i,j] - L[i,k-1]*U[k-1,j];
+            end
+        end
+    end
+    return L,U
+end
+
+function LUp(A::Union{Array{Complex128},Array{Float64}})
+    n = size(A,1); # Assuming A is nxn.
+    U = copy(A);
+    L = eye(eltype(A),n);
+    p = collect(1:n);
+    for k=2:n
+        for i=k:n
+            pivot = indmax(abs(U[(k-1):n,k-1])) + k - 2;
+            if U[pivot,k-1] == 0.0
+              break;
+            end
+            if pivot != k-1
+            # Permute rows k-1 and pivot in U
+            t = p[pivot];
+            p[pivot] = p[k-1];
+            p[k-1] = t;
+            t = U[k-1,(k-1):n];
+            U[k-1,(k-1):n] = U[pivot,(k-1):n];
+            U[pivot,(k-1):n] = t;
+            t = L[k-1,1:(k-2)];
+            L[k-1,1:(k-2)] = L[pivot,1:(k-2)];
+            L[pivot,1:(k-2)] = t;
+        end
+        L[i,k-1] = U[i,k-1]/U[k-1,k-1];
+        for j=k-1:n
+            U[i,j] = U[i,j] - L[i,k-1]*U[k-1,j];
+        end
+    end
+end
+return L,U,p
+end
+
+using PyPlot;
+figure();
+n = 100;
+R = rand(n,n);
+v = logspace(-4,4,n);
+Afun = sigma -> R * diagm( ones(n) + sigma*v);
+sigma = logspace(-4,4,5);
+
+s = rand(n);
+x = logspace(-4,4,5); #the solution without partial pivoting
+y = logspace(-4,4,5); #the solution with partial pivoting
+Ax =  logspace(-4,4,5); #for Axi-bi
+Ay = logspace(-4,4,5); #for Ayi-bi
+condA = logspace(-4,4,5); #condA
+
+for i=1:5
+   Ai = Afun(sigma[i]);
+   condA[i] = cond(Ai);
+   bi = Ai*s;
+   #calculate LU decomposition without partial pivoting
+   Li = LU(Ai)[1];
+   Ui = LU(Ai)[2];
+   ti = Li\bi;
+   xi = Ui\ti;
+   x[i] = norm(xi-s);
+   Ax[i] = norm(Ai*xi-bi)
+
+   #calculate LU decomposition with partial pivoting
+   Li = LUp(Ai)[1];
+   Ui = LUp(Ai)[2];
+   Pi = LUp(Ai)[3];
+   sizeP = length(Pi);
+   P = eye(sizeP, sizeP)[Pi,:];  #get permutation matrix from vector.
+   ti = Li \ P * bi;
+   xi = Ui\ti;
+   y[i] = norm(xi-s);
+   Ay[i] = norm(Ai*xi-bi)
+end
+
+subplot(1,3,1);
+loglog(sigma,x,"-r");
+hold
+loglog(sigma,y,"-b");
+title("Exercise 3")
+xlabel("sigma")
+ylabel("||xi-s||,||yi-s||")
+
+subplot(1,3,2);
+loglog(sigma,Ax,"-r");
+hold
+loglog(sigma,Ay,"-b");
+title("Exercise 3")
+xlabel("sigma")
+ylabel("||Axi-bi||,||Ayi-bi||")
+
+subplot(1,3,3);
+loglog(sigma,condA,"-r");
+title("Exercise 3")
+xlabel("sigma")
+ylabel("cond(A(sigma-i))")

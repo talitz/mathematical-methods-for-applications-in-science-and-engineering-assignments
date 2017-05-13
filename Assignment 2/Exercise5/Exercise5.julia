@@ -1,0 +1,48 @@
+A = [2 0 -1; 1 0 -2; 0 3 0 ; 0 3 0]
+L = eig(transpose(A)*A)
+b = sqrt(L[1])
+S = sort(sqrt(L[1]),rev=true)
+P = sortperm(sqrt(L[1]),rev=true)
+V = L[2]
+
+sorted_V = zeros(V)
+row = size(V)[1]
+
+for i in 1:length(P)
+  for j in 1:row
+    get_column_of_sorted_V = (i-1)*row
+    current_cell = j
+    column_index_to_set = P[i]
+    get_column_of_V = (column_index_to_set-1) * row
+    sorted_V[get_column_of_sorted_V + current_cell] = V[get_column_of_V+current_cell]
+  end
+end
+
+## Calculating matrix U
+id_matrix = eye(row)
+inv_v = transpose(sorted_V \ id_matrix)
+inv_s = diagm(S) \ id_matrix
+U = A*inv_v*inv_s
+
+println("SVD() As We Calculated:")
+println("U = ", U)
+println("S = ", S)
+println("V = ", sorted_V)
+println("------------------------------------------------------------")
+println("SVD() function in julia returns:")
+T = svd(A)
+println("U = ", T[1])
+println("S = ", T[2])
+println("V = ", T[3])
+println("------------------------------------------------------------")
+
+println("CHECK CORRECTNESS:")
+println("Check: U'*U = ")
+println(transpose(U)*U)
+println("Check: V'*V = ")
+println(transpose(V)*V)
+println("U*S*transpose(V) = ")
+println(U*diagm(S)*transpose(sorted_V))
+println("ORIGINAL MATRIX A:")
+println(A)
+println("------------------------------------------------------------")

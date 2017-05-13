@@ -1,0 +1,17 @@
+A = [2 1 2; 1 -2 1; 1 2 3; 1 1 1]
+b = [6 1 5 2]
+
+new_A = transpose(A)*A
+new_b = transpose(A)*transpose(b)
+
+# now, we solve new_A * x = new_b instead of Ax = b
+
+L = chol(new_A)
+A_choled = L*transpose(L)
+
+# now, we solve A_choled * x = new_b
+
+x = inv(transpose(A_choled)*A_choled)* (transpose(A_choled)*new_b)
+r = A_choled * x - new_b
+println("r = ",r)
+println("transpose(A)*r = ", transpose(A_choled)*r)
