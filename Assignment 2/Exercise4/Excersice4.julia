@@ -1,0 +1,156 @@
+# QUESTION 4
+
+
+##########################  FUNCTIONS ###########################
+#-------------------- modified_gram_schmidt ---------------------
+function modified_gram_schmidt(A)
+    n = size(A,2); # assume A is m×n
+    m = size(A,1);
+    R = zeros(n,n);
+    Q = zeros(m,n);
+    R[1,1] = norm(A[:,1]);
+    Q[:,1] = A[:,1]/R[1,1];
+
+    for i=2:n
+        Q[:,i] = A[:,i];
+        for j=1:i-1
+            R[j,i] = vecdot(Q[:,j]',Q[:,i]);
+            Q[:,i] = Q[:,i] - R[j,i]*Q[:,j];
+        end
+        R[i,i] = norm(Q[:,i]);
+        Q[:,i] = Q[:,i]/R[i,i];
+    end
+
+    return Q,R
+end
+
+#-------------------- svd_decomposition ---------------------
+function svd_decomposition(A)
+
+L = eig(transpose(A)*A)
+b = sqrt(L[1])
+S = sort(sqrt(L[1]),rev=true)
+P = sortperm(sqrt(L[1]),rev=true)
+V = L[2]
+
+sorted_V = zeros(V)
+row = size(V)[1]
+
+for i in 1:length(P)
+  for j in 1:row
+    get_column_of_sorted_V = (i-1)*row
+    current_cell = j
+    column_index_to_set = P[i]
+    get_column_of_V = (column_index_to_set-1) * row
+    sorted_V[get_column_of_sorted_V + current_cell] = V[get_column_of_V+current_cell]
+  end
+end
+
+## Calculating matrix U
+id_matrix = eye(row)
+inv_v = transpose(sorted_V \ id_matrix)
+inv_s = diagm(S) \ id_matrix
+U = A*inv_v*inv_s
+
+return U,S,V
+end
+
+#-------------------- CHOLESKY factorization ---------------------
+function CHOL_factorization(new_A,new_b)
+    #println("Solving with CHOLESKY factorization")
+    L = chol(new_A)
+    A_choled = L*transpose(L)
+
+    # now, we solve A_choled * x = new_b
+    x = inv(transpose(A_choled)*A_choled)* (transpose(A_choled)*new_b)
+    #println("x = ",x)
+    return x;
+end
+#-------------------- QR factorization ---------------------
+function QR_factorization(new_A,new_b)
+    #println("Solving with QR factorization")
+    Q,R = modified_gram_schmidt(new_A)
+
+    # now, we solve Q * R * x = new_b
+    # meaning, R * x = inv(Q) * new_b
+    # and we get, x = inv(R) * inv(Q) * new_b
+
+    x = inv(R) * inv(Q) * new_b
+    # x = inv(transpose(A_Q_R)*A_Q_R)* (transpose(A_Q_R)*new_b)
+    #println("x = ",x)
+    return x;
+end
+
+#-------------------- SVD factorization ---------------------
+function SVD_factorization(A,new_b)
+    #println("Solving with SVD factorization")
+    U,S,V = svd_decomposition(A)
+    S = diagm(S)
+
+    # now we calaculate U * S * transpose(V) * x = new_b
+    # then, transpose(U) * U * S * transpose(V) * x = transpose(U) * new_b
+    # inv(U' * U) * ( U' * U ) * S * transpose(V) * x = inv(U' * U) * transpose(U) * new_b
+    # S * transpose(V) * x = inv(U' * U) * transpose(U) * new_b
+    # inv(S) * S * transpose(V) * x = inv(S) * inv(U' * U) * transpose(U) * new_b
+    # transpose(V) * x = inv(S) * inv(U' * U) * transpose(U) * new_b
+    # inv(V') * V' * x = inv(V') * inv(S) * inv(U' * U) * transpose(U) * new_b
+    # meaning, x = inv(V') * inv(S) * inv(U' * U) * transpose(U) * new_b
+    x = inv(V') * inv(S) * inv(U' * U) * U' * new_b
+    #println("x = ",x)
+    return x;
+end
+####################  end of FUNCTIONS #####################
+
+####################### PART A ##############################
+A = [2 1 2; 1 -2 1; 1 2 3; 1 1 1]
+b = [6 1 5 2]
+
+new_A = transpose(A)*A
+new_b = transpose(A)*transpose(b)
+# now, we solve new_A * x = new_b instead of Ax = b
+QR_factorization(new_A,new_b)
+SVD_factorization(new_A,new_b)
+
+####################### PART C ##############################
+
+## Define
+println("PART C")
+println("compare the accuracy of the obtained LS solution using the three
+methods:")
+m = 100; n = 25; k = 10; s = rand(n);
+for i = 1 : 10
+  println("i=",i)
+  sigma = exp(i*rand(n));
+  A = randn(m,n)*diagm(sigma)*randn(n,n);
+  b = A*s;
+  # solutions of the LS problem
+  new_A = A'*A
+  new_b = A'*b
+  xi_cholesky = CHOL_factorization(new_A,new_b)
+  xi_QR = QR_factorization(new_A,new_b)
+  xi_SVD = SVD_factorization(new_A,new_b)
+
+  # error norms
+  err_i_cholesky = norm(xi_cholesky - s)
+  err_i_QR = norm(xi_QR - s)
+  err_i_SVD = norm(xi_SVD - s)
+  println("Error cholesky is: ",err_i_cholesky)
+  println("Error QR is: ",err_i_QR)
+  println("Error SVD is: ",err_i_SVD)
+  println("")
+end
+
+
+#TODO:
+#For any matrix A ∈ Rn×n, prove/show using the SVD factorization that the
+#condition number of A>A is the condition number of A squared: κ(A>A) = κ(A)2.
+#Here we refer to the condition number with respect to the `2 norm.
+#FIX DOMAIN ERROR
+#Using the function semilogy(1:10,errorNormsVector) plot the error norms
+#for the three methods using a logarithmic scale in the y axis only (x axis
+#will be 1:10); Plot the graphs of all methods on the same plot, and add an
+#appropriate legend.
+#3
+#• How do the methods perform? Explain using the condition number.
+#• Given the answers in the previous section, which is the best method for solving
+#LS in terms of both computing time and accuracy? Explain.

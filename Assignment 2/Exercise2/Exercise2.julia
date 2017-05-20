@@ -10,8 +10,11 @@ L = chol(new_A)
 A_choled = L*transpose(L)
 
 # now, we solve A_choled * x = new_b
+println("A_choled is: ", A_choled)
+println("new_A is: ", new_A)
 
 x = inv(transpose(A_choled)*A_choled)* (transpose(A_choled)*new_b)
+println("x = ",x)
 r = A_choled * x - new_b
 println("r = ",r)
 println("transpose(A)*r = ", transpose(A_choled)*r)
