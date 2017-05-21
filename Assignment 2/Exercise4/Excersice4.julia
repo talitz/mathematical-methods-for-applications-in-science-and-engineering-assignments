@@ -68,7 +68,7 @@ function CHOL_factorization(new_A,new_b)
 end
 #-------------------- QR factorization ---------------------
 function QR_factorization(new_A,new_b)
-    #println("Solving with QR factorization")
+    println("Solving with QR factorization")
     Q,R = modified_gram_schmidt(new_A)
 
     # now, we solve Q * R * x = new_b
@@ -76,27 +76,17 @@ function QR_factorization(new_A,new_b)
     # and we get, x = inv(R) * inv(Q) * new_b
 
     x = inv(R) * inv(Q) * new_b
-    # x = inv(transpose(A_Q_R)*A_Q_R)* (transpose(A_Q_R)*new_b)
-    #println("x = ",x)
+    println("x = ",x)
     return x;
 end
 
 #-------------------- SVD factorization ---------------------
 function SVD_factorization(A,new_b)
-    #println("Solving with SVD factorization")
-    U,S,V = svd_decomposition(A)
+    println("Solving with SVD factorization")
+    U,S,V = svd(A)
     S = diagm(S)
-
-    # now we calaculate U * S * transpose(V) * x = new_b
-    # then, transpose(U) * U * S * transpose(V) * x = transpose(U) * new_b
-    # inv(U' * U) * ( U' * U ) * S * transpose(V) * x = inv(U' * U) * transpose(U) * new_b
-    # S * transpose(V) * x = inv(U' * U) * transpose(U) * new_b
-    # inv(S) * S * transpose(V) * x = inv(S) * inv(U' * U) * transpose(U) * new_b
-    # transpose(V) * x = inv(S) * inv(U' * U) * transpose(U) * new_b
-    # inv(V') * V' * x = inv(V') * inv(S) * inv(U' * U) * transpose(U) * new_b
-    # meaning, x = inv(V') * inv(S) * inv(U' * U) * transpose(U) * new_b
-    x = inv(V') * inv(S) * inv(U' * U) * U' * new_b
-    #println("x = ",x)
+    x = V * inv(S) * transpose(U) * new_b
+    println("x = ",x)
     return x;
 end
 ####################  end of FUNCTIONS #####################
@@ -114,31 +104,31 @@ SVD_factorization(new_A,new_b)
 ####################### PART C ##############################
 
 ## Define
-println("PART C")
-println("compare the accuracy of the obtained LS solution using the three
-methods:")
-m = 100; n = 25; k = 10; s = rand(n);
-for i = 1 : 10
-  println("i=",i)
-  sigma = exp(i*rand(n));
-  A = randn(m,n)*diagm(sigma)*randn(n,n);
-  b = A*s;
+#println("PART C")
+#println("compare the accuracy of the obtained LS solution using the three
+#methods:")
+#m = 100; n = 25; k = 10; s = rand(n);
+#for i = 1 : 10
+#  println("i=",i)
+#  sigma = exp(i*rand(n));
+#  A = randn(m,n)*diagm(sigma)*randn(n,n);
+#  b = A*s;
   # solutions of the LS problem
-  new_A = A'*A
-  new_b = A'*b
-  xi_cholesky = CHOL_factorization(new_A,new_b)
-  xi_QR = QR_factorization(new_A,new_b)
-  xi_SVD = SVD_factorization(new_A,new_b)
+#  new_A = A'*A
+#  new_b = A'*b
+#  xi_cholesky = CHOL_factorization(new_A,new_b)
+#  xi_QR = QR_factorization(new_A,new_b)
+#  xi_SVD = SVD_factorization(new_A,new_b)
 
   # error norms
-  err_i_cholesky = norm(xi_cholesky - s)
-  err_i_QR = norm(xi_QR - s)
-  err_i_SVD = norm(xi_SVD - s)
-  println("Error cholesky is: ",err_i_cholesky)
-  println("Error QR is: ",err_i_QR)
-  println("Error SVD is: ",err_i_SVD)
-  println("")
-end
+#  err_i_cholesky = norm(xi_cholesky - s)
+#  err_i_QR = norm(xi_QR - s)
+#  err_i_SVD = norm(xi_SVD - s)
+#  println("Error cholesky is: ",err_i_cholesky)
+#  println("Error QR is: ",err_i_QR)
+#  println("Error SVD is: ",err_i_SVD)
+#  println("")
+#end
 
 
 #TODO:
