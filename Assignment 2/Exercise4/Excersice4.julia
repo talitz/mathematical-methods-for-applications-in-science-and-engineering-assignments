@@ -129,42 +129,67 @@ println("PART C")
 #println("compare the accuracy of the obtained LS solution using the three
 #methods:")
 m = 100; n = 25; k = 10; s = rand(n);
+xi_chols = []; xi_QRS = []; xi_SVDS = []; condA = [];
+
 for i = 1 : 10
-  println("i=",i)
   sigma = exp(i*rand(n));
   A = randn(m,n)*diagm(sigma)*randn(n,n);
   b = A*s;
   # solutions of the LS problem
   new_A = A'*A
   new_b = A'*b
-  xi_cholesky = CHOL_factorization(new_A,new_b)
+  xi_chol = CHOL_factorization(new_A,new_b)
   xi_QR = QR_factorization(new_A,new_b)
   xi_SVD = SVD_factorization(new_A,new_b)
 
   # error norms
-  err_i_cholesky = norm(xi_cholesky - s)
+  err_i_cholesky = norm(xi_chol - s)
   err_i_QR = norm(xi_QR - s)
   err_i_SVD = norm(xi_SVD - s)
-  #semilogy(1:10,err_i_cholesky)
-  #semilogy(1:10,err_i_QR)
-  #semilogy(1:10,err_i_SVD)
-#  println("Error cholesky is: ",err_i_cholesky)
-#  println("Error QR is: ",err_i_QR)
-#  println("Error SVD is: ",err_i_SVD)
-#  println("")
+  push!(xi_chols, err_i_cholesky)
+  push!(xi_QRS, err_i_QR)
+  push!(xi_SVDS, err_i_SVD)
+  push!(condA, cond(A))
+
 end
 
+####################### Graph ##############################
 
-#TODO:
-#For any matrix A ∈ Rn×n, prove/show using the SVD factorization that the
-#condition number of A>A is the condition number of A squared: κ(A>A) = κ(A)2.
-#Here we refer to the condition number with respect to the `2 norm.
-#FIX DOMAIN ERROR
-#Using the function semilogy(1:10,errorNormsVector) plot the error norms
-#for the three methods using a logarithmic scale in the y axis only (x axis
-#will be 1:10); Plot the graphs of all methods on the same plot, and add an
-#appropriate legend.
-#3
-#• How do the methods perform? Explain using the condition number.
-#• Given the answers in the previous section, which is the best method for solving
-#LS in terms of both computing time and accuracy? Explain.
+using PyPlot
+figure();
+subplot(1,2,1);
+y = xi_chols;
+semilogy(1 : 10,y,"-b");
+y = xi_QRS;
+semilogy(1 : 10,y,"-r");
+y = xi_SVDS;
+semilogy(1 : 10,y,"-g");
+
+title("Compare the accuracy of the obtained LS solution");
+legend(("chol", "qr", "svd"));
+xlabel("1:10");
+ylabel("Error Norm");
+
+
+subplot(1,2,2);
+y = condA;
+semilogy(1 : 10,y,"-y");
+title("Condition number");
+show();
+
+####################### Methods performance ##############################
+#The Methods perform according to the cond of matrix A.
+#Meaning, when the cond of matrix A is higher then error is bigger.
+#=
+ADD IT : ???????
+In addition, in every change in cond(A), for example when it decreases around x=8,
+the solution in each one of the methods improves i.e. the error decreases.
+This result is reasonable since by definition, cond(A) measures the change in vector x in relation to the change in the vector b,
+meaning the size of the error. Therefore, as cond(A) increases so does the error, as required.
+=#
+
+####################### Best Method ##############################
+#By the results, we can say that QR and SVD are almost the same.
+#but we learned in class that svd is more pricely than qr.
+#For svd we need the eigenvalues (expensive process), therefore the qr is the best method
+#in terms of computing time and accuracy.
