@@ -2,29 +2,8 @@
 
 
 ##########################  FUNCTIONS ###########################
-#-------------------- modified_gram_schmidt ---------------------
-function modified_gram_schmidt(A)
-    n = size(A,2); # assume A is m×n
-    m = size(A,1);
-    R = zeros(n,n);
-    Q = zeros(m,n);
-    R[1,1] = norm(A[:,1]);
-    Q[:,1] = A[:,1]/R[1,1];
+#-------------------- svd_decomposition factorization ---------------------
 
-    for i=2:n
-        Q[:,i] = A[:,i];
-        for j=1:i-1
-            R[j,i] = vecdot(Q[:,j]',Q[:,i]);
-            Q[:,i] = Q[:,i] - R[j,i]*Q[:,j];
-        end
-        R[i,i] = norm(Q[:,i]);
-        Q[:,i] = Q[:,i]/R[i,i];
-    end
-
-    return Q,R
-end
-
-#-------------------- svd_decomposition ---------------------
 function svd_decomposition(A)
 
 L = eig(transpose(A)*A)
@@ -54,7 +33,27 @@ U = A*inv_v*inv_s
 
 return U,S,V
 end
+#-------------------- modified_gram_schmidt factorization ---------------------
+function modified_gram_schmidt(A)
+    n = size(A,2); # assume A is m×n
+    m = size(A,1);
+    R = zeros(n,n);
+    Q = zeros(m,n);
+    R[1,1] = norm(A[:,1]);
+    Q[:,1] = A[:,1]/R[1,1];
 
+    for i=2:n
+        Q[:,i] = A[:,i];
+        for j=1:i-1
+            R[j,i] = vecdot(Q[:,j]',Q[:,i]);
+            Q[:,i] = Q[:,i] - R[j,i]*Q[:,j];
+        end
+        R[i,i] = norm(Q[:,i]);
+        Q[:,i] = Q[:,i]/R[i,i];
+    end
+
+    return Q,R
+end
 #-------------------- CHOLESKY factorization ---------------------
 function CHOL_factorization(new_A,new_b)
     #println("Solving with CHOLESKY factorization")
@@ -67,7 +66,7 @@ function CHOL_factorization(new_A,new_b)
     return x;
 end
 #-------------------- QR factorization ---------------------
-function QR_factorization(new_A,new_b)
+function QR_factorization2a(new_A,new_b)
     println("Solving with QR factorization")
     Q,R = modified_gram_schmidt(new_A)
 
@@ -80,9 +79,31 @@ function QR_factorization(new_A,new_b)
     return x;
 end
 
+function QR_factorization(new_A,new_b)
+    #println("Solving with QR factorization")
+    Q,R = qr(new_A)
+
+    # now, we solve Q * R * x = new_b
+    # meaning, R * x = inv(Q) * new_b
+    # and we get, x = inv(R) * inv(Q) * new_b
+
+    x = inv(R) * inv(Q) * new_b
+    println("x = ",x)
+    return x;
+end
+
 #-------------------- SVD factorization ---------------------
-function SVD_factorization(A,new_b)
+function SVD_factorization2a(A,new_b)
     println("Solving with SVD factorization")
+    U,S,V = svd_decomposition(A)
+    S = diagm(S)
+    x = V * inv(S) * transpose(U) * new_b
+    println("x = ",x)
+    return x;
+end
+
+function SVD_factorization(A,new_b)
+    #println("Solving with SVD factorization")
     U,S,V = svd(A)
     S = diagm(S)
     x = V * inv(S) * transpose(U) * new_b
@@ -104,31 +125,34 @@ SVD_factorization(new_A,new_b)
 ####################### PART C ##############################
 
 ## Define
-#println("PART C")
+println("PART C")
 #println("compare the accuracy of the obtained LS solution using the three
 #methods:")
-#m = 100; n = 25; k = 10; s = rand(n);
-#for i = 1 : 10
-#  println("i=",i)
-#  sigma = exp(i*rand(n));
-#  A = randn(m,n)*diagm(sigma)*randn(n,n);
-#  b = A*s;
+m = 100; n = 25; k = 10; s = rand(n);
+for i = 1 : 10
+  println("i=",i)
+  sigma = exp(i*rand(n));
+  A = randn(m,n)*diagm(sigma)*randn(n,n);
+  b = A*s;
   # solutions of the LS problem
-#  new_A = A'*A
-#  new_b = A'*b
-#  xi_cholesky = CHOL_factorization(new_A,new_b)
-#  xi_QR = QR_factorization(new_A,new_b)
-#  xi_SVD = SVD_factorization(new_A,new_b)
+  new_A = A'*A
+  new_b = A'*b
+  xi_cholesky = CHOL_factorization(new_A,new_b)
+  xi_QR = QR_factorization(new_A,new_b)
+  xi_SVD = SVD_factorization(new_A,new_b)
 
   # error norms
-#  err_i_cholesky = norm(xi_cholesky - s)
-#  err_i_QR = norm(xi_QR - s)
-#  err_i_SVD = norm(xi_SVD - s)
+  err_i_cholesky = norm(xi_cholesky - s)
+  err_i_QR = norm(xi_QR - s)
+  err_i_SVD = norm(xi_SVD - s)
+  #semilogy(1:10,err_i_cholesky)
+  #semilogy(1:10,err_i_QR)
+  #semilogy(1:10,err_i_SVD)
 #  println("Error cholesky is: ",err_i_cholesky)
 #  println("Error QR is: ",err_i_QR)
 #  println("Error SVD is: ",err_i_SVD)
 #  println("")
-#end
+end
 
 
 #TODO:
