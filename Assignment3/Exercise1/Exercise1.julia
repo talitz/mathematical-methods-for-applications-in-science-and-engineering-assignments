@@ -1,0 +1,54 @@
+# Assignment 3
+# Question 1
+# Part a
+
+#The Jacobi method - not weight
+function JCB(A,b,x_0,epsilon,n_iter)
+x_k = x_0;
+D=diagm(A);
+
+for k=1:n_iter
+  norm_x_k = norm(x_k);
+  x_k1 = x_k + inv(D)*(b-A*x_k)
+  norm_xk_k1 = norm(x_k1-x_k);
+
+  if norm_xk_k1/norm_x_k < epsilon
+    break;
+  end
+  x_k = x_k1;
+ end
+end
+
+#The Gauss Seidel method
+function GS(A,b,x,epsilon,n_iter)
+  r = b - A*x;
+  n0 = norm(r);
+  LD = tril(A);
+  for k=1:n_iter
+    x = x + LD\r;
+    r = b - A*x;
+    nr = norm(r);
+    if nr/n0 < epsilon
+      break;
+    end
+   end
+ return x,norms;
+end
+
+#The Successive Over Relaxation (SOR)
+function SOR(A,b,x,epsilon,n_iter,w)
+  r = b - A*x;
+  n0 = norm(r);
+  LD = tril(A);
+  D = diagm(A);
+  L = LD - D;
+  for k=1:n_iter
+    x = x + w*(D+w*L)\r;
+    r = b - A*x;
+    nr = norm(r);
+    if nr/n0 < epsilon
+      break;
+    end
+   end
+  return x,norms;
+end
