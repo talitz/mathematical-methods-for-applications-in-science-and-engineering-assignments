@@ -2,14 +2,16 @@
 # Question 1
 # Part a
 
-#The Jacobi method - not weight
-function JCB(A,b,x_0,epsilon,n_iter)
+#The Jacobi method
+function JCB(A,b,x_0,epsilon,n_iter,w)
 x_k = x_0;
-D=diagm(A);
-
+D= diagm(diag(A));
+LU = A-D;
 for k=1:n_iter
   norm_x_k = norm(x_k);
-  x_k1 = x_k + inv(D)*(b-A*x_k)
+  LU_xk = LU*x_k;
+  r = b-LU_xk;
+  x_k1 = (1-w)*x_k + w*inv(D)*(b-LU*x_k)
   norm_xk_k1 = norm(x_k1-x_k);
 
   if norm_xk_k1/norm_x_k < epsilon
@@ -17,6 +19,7 @@ for k=1:n_iter
   end
   x_k = x_k1;
  end
+ return x_k;
 end
 
 #The Gauss Seidel method
@@ -32,7 +35,7 @@ function GS(A,b,x,epsilon,n_iter)
       break;
     end
    end
- return x,norms;
+ return x;
 end
 
 #The Successive Over Relaxation (SOR)
@@ -40,7 +43,7 @@ function SOR(A,b,x,epsilon,n_iter,w)
   r = b - A*x;
   n0 = norm(r);
   LD = tril(A);
-  D = diagm(A);
+  D = diagm(diag(A));
   L = LD - D;
   for k=1:n_iter
     x = x + w*(D+w*L)\r;
@@ -50,5 +53,35 @@ function SOR(A,b,x,epsilon,n_iter,w)
       break;
     end
    end
-  return x,norms;
+  return x;
 end
+
+#part b
+
+n = 256;
+A = sprandn(n,n,2/n);
+A = A'*A + 0.2*speye(n);
+x_0 = zeros(256);
+b = rand(n)
+n_iter = 100;
+epsilon = 0 ;
+jacobi_weight_1 = 0.75;
+jacobi_weight_2 = 0.5;
+sor_weight_1 = 1.25;
+sor_weight_2 = 1.5;
+
+
+#jacobi
+x_jacob_w1 = JCB(A,b,x_0,epsilon,n_iter,jacobi_weight_1);
+x_jacob_w2 = JCB(A,b,x_0,epsilon,n_iter,jacobi_weight_2);
+#Gauss Seidel
+gs = GS(A,b,x_0,epsilon,n_iter);
+#Successive Over Relaxation
+sor_w1 = SOR(A,b,x_0,epsilon,n_iter,sor_weight_1);
+sor_w2 = SOR(A,b,x_0,epsilon,n_iter,sor_weight_2);
+
+println("Compute with Jacobi - Weight = ",jacobi_weight_1 ," X = " ,x_jacob_w1);
+println("Compute with Jacobi - Weight = " ,jacobi_weight_2 ," X = " ,x_jacob_w2);
+println("Compute with Gauss Seidel : X = " ,x_jacob_w1);
+println("Compute with SOR - Weight = " ,sor_weight_1 ," X = " , sor_w1);
+println("Compute with SOR - Weight = " ,sor_weight_2 , " X = " , sor_w2);
