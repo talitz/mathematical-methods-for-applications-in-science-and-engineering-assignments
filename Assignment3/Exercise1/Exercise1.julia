@@ -105,17 +105,14 @@ legend(("SOR 1.25", "SOR 1.5", "JACOBI 0.75", "JACOBI 0.5"));
 xlabel("ITERATION");
 ylabel("Norm(A*x_k - b)");
 
-println("sor w1: ", xk_sor_weight_1);
-for k=0:99
+# calculating the factor
+for k=0:98
   index = 100 - k ;
   xk_sor_weight_1[index] = xk_sor_weight_1[index]/xk_sor_weight_1[index-1];
   xk_sor_weight_2[index] = xk_sor_weight_2[index]/xk_sor_weight_2[index-1];
   xk_jacobi_weight_1[index] = xk_jacobi_weight_1[index]/xk_jacobi_weight_1[index-1];
   xk_jacobi_weight_2[index] = xk_jacobi_weight_2[index]/xk_jacobi_weight_2[index-1];
-  println("k = ", k);
-  println("index = " , index);
 end
-println("sor w1 after : ", xk_sor_weight_1);
 
 subplot(1,2,2);
 y = xk_sor_weight_1;
@@ -132,3 +129,13 @@ legend(("SOR 1.25", "SOR 1.5", "JACOBI 0.75", "JACOBI 0.5"));
 xlabel("ITERATION");
 ylabel("Norm(A*x_k - b)/Norm(A*x_k-1 - b)");
 show();
+# We can see in the graphs that sor converges quicker to the solution.
+
+
+#part c
+
+The SOR method is a weighted version of GS .
+In our question we are choosing a good w, because sor is a weighted version
+of gs, there is a w which makes the two methods identical, so sor with a
+good w is at least as good as gs.
+depending on the problem we might find a 'w' which will make sor better than gs.
