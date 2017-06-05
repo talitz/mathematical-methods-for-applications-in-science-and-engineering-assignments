@@ -12,10 +12,11 @@ p = norm(A,1);
 # p = 12 ;
 
 #part c
-temp = p*I-A ;
+println("------------------PART C------------------");
+identity = Diagonal(ones(10));
+temp = p*identity-A ;
 max_vec_piA = [];
 min_vec_A = [];
-
 eigenvecs_A = eigvecs(A);
 eigenvecs_pIA = eigvecs(temp);
 
@@ -25,33 +26,65 @@ end
 
 for i=1:10
   push!(min_vec_A,eigenvecs_A[i]);
-  push!(min_vec_A,eigenvecs_A[i]);
 end
 
 println("Eigenvector with minimal eigenvalue of A: ", min_vec_A);
+println("");
 println("Eigenvector with maximal eigenvalue of ρˆ*I − A: ",max_vec_piA);
+println("");
 # As we can see both of the vectors above are equal.
 
 
 #part d
+println("------------------PART D------------------");
 
 eigen_vals_A = eigvals(A);
 min_eigen_A = eigen_vals_A[1];
-v = [1 1 1 1 1 1 1 1 1 1]
+v = [1 1 1 1 1 1 1 1 1 1];
 # A*v = min_eigen_A * V
-println("A=",A);
-println("v=",v);
 println("A*V=", A*v');
 println("min_eigen_A*V=", min_eigen_A*v);
 # As we can see both of the vectors above are equal A*v = min_eigen_A * V
 
 
 #part e
+println("------------------PART E------------------");
 
+x_0 = [1 5 2 1 1 3 1 1 -2 1 ] ;
+x_k = x_0 ;
 for i=1:100
-  x_k1 = (p*I-A)*x_k
-
-
-
-
+  x_k1 = (p*identity-A)*x_k';
+  x_k1 = x_k1 / norm(x_k1);
+  x_k = x_k1';
 end
+
+println(" resulting vector: ", x_k);
+
+#part f
+println("------------------PART F------------------");
+
+x_0 = [1 5 2 1 1 3 1 1 -2 1 ] ;
+x_k = x_0 ;
+for i=1:100
+  x_k1 = (p*(identity-1/10*v'*v) - A)*x_k';
+  x_k1 = x_k1 / norm(x_k1);
+  x_k = x_k1';
+end
+
+println("The method Converges to: ");
+println(x_k);
+
+second_min_vec_A = [];
+for i=11:20
+  push!(second_min_vec_A,eigenvecs_A[i]);
+end
+
+println("The eigenvector with the second smallest eigenvalue of A: ");
+println(second_min_vec_A);
+
+# we can see that the method converges to the eigenvector
+# with the second smallest eigenvalue of A.
+
+
+
+# part g
