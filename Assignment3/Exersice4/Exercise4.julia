@@ -1,0 +1,57 @@
+# Assignment 3
+# Question 4
+
+A = [2 -1 -1 0 0 0 0 0 0 0;-1 2 -1 0 0 0 0 0 0 0;-1 -1 3 -1 0 0 0 0 0 0;0 0 -1 4 -1 0 -1 0 0 -1;0 0 0 -1 4 -1 -1 -1 0 0;0 0 0 0 -1 3 -1 -1 0 0;0 0 0 -1 -1 -1 6 -1 -1 -1;0 0 0 0 -1 -1 -1 4 0 -1;0 0 0 0 0 0 -1 0 2 -1;0 0 0 -1 0 0 -1 -1 -1 4];
+p = norm(A,1);
+
+# Part b
+# upper bound for the spectral radius of A by the 1-norm is
+# 1 norm of matrix A, because we know that the norm of matrix
+# is bigger equal to eigenvalues of the matrix, in particular , the spectral
+# radius which is the largest absolute value of its eigenvalues.
+# p = 12 ;
+
+#part c
+temp = p*I-A ;
+max_vec_piA = [];
+min_vec_A = [];
+
+eigenvecs_A = eigvecs(A);
+eigenvecs_pIA = eigvecs(temp);
+
+for i=91:100
+  push!(max_vec_piA,eigenvecs_pIA[i]);
+end
+
+for i=1:10
+  push!(min_vec_A,eigenvecs_A[i]);
+  push!(min_vec_A,eigenvecs_A[i]);
+end
+
+println("Eigenvector with minimal eigenvalue of A: ", min_vec_A);
+println("Eigenvector with maximal eigenvalue of ρˆ*I − A: ",max_vec_piA);
+# As we can see both of the vectors above are equal.
+
+
+#part d
+
+eigen_vals_A = eigvals(A);
+min_eigen_A = eigen_vals_A[1];
+v = [1 1 1 1 1 1 1 1 1 1]
+# A*v = min_eigen_A * V
+println("A=",A);
+println("v=",v);
+println("A*V=", A*v');
+println("min_eigen_A*V=", min_eigen_A*v);
+# As we can see both of the vectors above are equal A*v = min_eigen_A * V
+
+
+#part e
+
+for i=1:100
+  x_k1 = (p*I-A)*x_k
+
+
+
+
+end
