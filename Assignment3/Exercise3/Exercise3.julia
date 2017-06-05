@@ -6,13 +6,14 @@
 function MINRES(A,b,x_0,n_iter,xk_array)
   x_k = x_0;
   for k=1:n_iter
-    r = b-transpose(A*x_k');
-    println("r ",r);
+    r = b-A*x_k;
     norm_r = norm(r);
-    up   = r'*(A*r')' ;
-    down = r'*(A'*r')';
-
+    up   = r'*A*r ;
+    down = r'*A'*A*r;
     a_k = up / down;
+    println("size: ", size(a_k*r));
+    println("size x_k: ", size(x_k));
+
     x_k1 = x_k + a_k*r ;
     push!(xk_array, norm_r);
     x_k = x_k1;
@@ -28,7 +29,7 @@ b = [1,1,1,1,1];
 n_iter = 50;
 xk_miners = [];
 println("Start");
-x_k , xk_miners = MINRES(A,transpose(b),x_0',n_iter,xk_miners);
+x_k , xk_miners = MINRES(A,b,x_0,n_iter,xk_miners);
 
 println("xk miners: ", xk_miners);
 
