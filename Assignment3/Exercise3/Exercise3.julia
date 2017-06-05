@@ -11,12 +11,9 @@ function MINRES(A,b,x_0,n_iter,xk_array)
     up   = r'*A*r ;
     down = r'*A'*A*r;
     a_k = up / down;
-    println("size: ", size(a_k*r));
-    println("size x_k: ", size(x_k));
-
-    x_k1 = x_k + a_k*r ;
+    x_k1 = x_k' + a_k*r' ;
     push!(xk_array, norm_r);
-    x_k = x_k1;
+    x_k = x_k1';
  end
  return x_k, xk_array;
 end
@@ -46,3 +43,11 @@ xlabel("ITERATION");
 ylabel("Residual Norm");
 
 show();
+
+#part d
+# The graph that we got in the previous subsection is monotone.
+# That happens because it represents the value of the residual norm.
+# The residual norm is affect in every iteration by the
+# size of X_k , because the MINERS method converges, the size of r = b - A*X_k
+# is getting smaller meaning that the norm of r is getting smaller as well
+# what makes the graph monotone.
