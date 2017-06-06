@@ -97,11 +97,11 @@ y = xk_jacobi_weight_1;
 semilogy(1 : 100,y,"-g");
 y = xk_jacobi_weight_2;
 semilogy(1 : 100,y,"-y");
-#y = xk_gs;
-#semilogy(1 : 10,y,"-y");
+y = xk_gs;
+semilogy(1 : 100,y,color = "purple");
 
 title("Convergence Graph ");
-legend(("SOR 1.25", "SOR 1.5", "JACOBI 0.75", "JACOBI 0.5"));
+legend(("SOR 1.25", "SOR 1.5", "JACOBI 0.75", "JACOBI 0.5", "GS"));
 xlabel("ITERATION");
 ylabel("Norm(A*x_k - b)");
 
@@ -112,6 +112,7 @@ for k=0:98
   xk_sor_weight_2[index] = xk_sor_weight_2[index]/xk_sor_weight_2[index-1];
   xk_jacobi_weight_1[index] = xk_jacobi_weight_1[index]/xk_jacobi_weight_1[index-1];
   xk_jacobi_weight_2[index] = xk_jacobi_weight_2[index]/xk_jacobi_weight_2[index-1];
+  xk_gs[index] = xk_gs[index]/xk_gs[index-1];
 end
 
 subplot(1,2,2);
@@ -123,9 +124,11 @@ y = xk_jacobi_weight_1;
 semilogy(1 : 100,y,"-g");
 y = xk_jacobi_weight_2;
 semilogy(1 : 100,y,"-y");
+y = xk_gs;
+semilogy(1 : 100,y,color = "purple");
 
 title("Convergence factor");
-legend(("SOR 1.25", "SOR 1.5", "JACOBI 0.75", "JACOBI 0.5"));
+legend(("SOR 1.25", "SOR 1.5", "JACOBI 0.75", "JACOBI 0.5", "GS"));
 xlabel("ITERATION");
 ylabel("Norm(A*x_k - b)/Norm(A*x_k-1 - b)");
 show();

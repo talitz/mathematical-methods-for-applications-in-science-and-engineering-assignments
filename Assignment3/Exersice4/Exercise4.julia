@@ -9,7 +9,7 @@ p = norm(A,1);
 # 1 norm of matrix A, because we know that the norm of matrix
 # is bigger equal to eigenvalues of the matrix, in particular , the spectral
 # radius which is the largest absolute value of its eigenvalues.
-# p = 12 ;
+# p = 12 >= max_eigval(A) = 7.0495;
 
 #part c
 println("------------------PART C------------------");
@@ -20,10 +20,12 @@ min_vec_A = [];
 eigenvecs_A = eigvecs(A);
 eigenvecs_pIA = eigvecs(temp);
 
+# Eigenvector corresponding to the max eigenvalue
 for i=91:100
   push!(max_vec_piA,eigenvecs_pIA[i]);
 end
 
+# Eigenvector corresponding to the min eigenvalue
 for i=1:10
   push!(min_vec_A,eigenvecs_A[i]);
 end
@@ -39,12 +41,12 @@ println("");
 println("------------------PART D------------------");
 
 eigen_vals_A = eigvals(A);
-min_eigen_A = eigen_vals_A[1];
+min_eigen_val_A = eigen_vals_A[1];
 v = [1 1 1 1 1 1 1 1 1 1];
 # A*v = min_eigen_A * V
 println("A*V=", A*v');
-println("min_eigen_A*V=", min_eigen_A*v);
-# As we can see both of the vectors above are equal A*v = min_eigen_A * V
+println("min_eigen_val_A*V=", min_eigen_val_A*v);
+# As we can see both of the vectors above are equal A*v = min_eigen_val_A * V
 
 
 #part e
@@ -77,18 +79,22 @@ ylabel("Result Vector");
 #part f
 println("------------------PART F------------------");
 result_vector2 = [];
+n=10;
+x_0 = 0.25*ones(n);
+v = ones(n);
+vvT = v*v';
+x = x_0 ;
+I = eye(10);
 
-x_0 = [1 5 2 1 1 3 1 1 -2 1 ] ;
-x_k = x_0 ;
 for i=1:100
-  x_k1 = (p*(identity-1/10*v'*v) - A)*x_k';
-  push!(result_vector2,norm(x_k1));
-  x_k1 = x_k1 / norm(x_k1);
-  x_k = x_k1';
+  x = (p*(I- 0.1*vvT) - A)* x;
+  push!(result_vector2,norm(x));
+  x = x / norm(x);
 end
 
+
 println("The method Converges to: ");
-println(x_k);
+println(x);
 
 second_min_vec_A = [];
 for i=11:20
@@ -112,3 +118,6 @@ show();
 
 
 # part g
+
+
+###

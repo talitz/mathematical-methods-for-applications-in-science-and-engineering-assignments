@@ -3,7 +3,7 @@
 # Part a
 
 #The MINRES method
-function MINRES(A,b,x_0,n_iter,xk_array)
+function MINRES(A,b,x_0,epsilon,n_iter,xk_array)
   x_k = x_0;
   for k=1:n_iter
     r = b-A*x_k;
@@ -13,6 +13,9 @@ function MINRES(A,b,x_0,n_iter,xk_array)
     a_k = up / down;
     x_k1 = x_k' + a_k*r' ;
     push!(xk_array, norm_r);
+    if (norm(A*x_k-b)/norm(b))<epsilon
+      break;
+    end
     x_k = x_k1';
  end
  return x_k, xk_array;
@@ -26,7 +29,7 @@ b = [1,1,1,1,1];
 n_iter = 50;
 xk_miners = [];
 println("Start");
-x_k , xk_miners = MINRES(A,b,x_0,n_iter,xk_miners);
+x_k , xk_miners = MINRES(A,b,x_0,0,n_iter,xk_miners);
 
 println("xk miners: ", xk_miners);
 
@@ -47,7 +50,7 @@ show();
 #part d
 # The graph that we got in the previous subsection is monotone.
 # That happens because it represents the value of the residual norm.
-# The residual norm is affect in every iteration by the
+# The residual norm is affected in every iteration by the
 # size of X_k , because the MINERS method converges, the size of r = b - A*X_k
 # is getting smaller meaning that the norm of r is getting smaller as well
 # what makes the graph monotone.
